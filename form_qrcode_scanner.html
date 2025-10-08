@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>FORM QRCODE - Scansione Seriali</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #reader { width: 300px; margin-bottom: 20px; }
+        #result { font-size: 1.2em; margin-bottom: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 1em; }
+    </style>
+</head>
+<body>
+    <h2>Scansiona il QR Code</h2>
+    <div id="reader"></div>
+    <div id="result">Seriale rilevato: <span id="seriale">--</span></div>
+    <button onclick="inviaSeriale('nuovo')">Seriale NUOVO</button>
+    <button onclick="inviaSeriale('rimosso')">Seriale RIMOSSO</button>
+
+    <script>
+        let serialeRilevato = "";
+
+        function onScanSuccess(decodedText, decodedResult) {
+            serialeRilevato = decodedText;
+            document.getElementById("seriale").innerText = serialeRilevato;
+            html5QrcodeScanner.clear();
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+
+        function inviaSeriale(tipo) {
+            if (!serialeRilevato) {
+                alert("Scansiona prima un QR code.");
+                return;
+            }
+
+            const baseUrl = "https://forms.office.com/Pages/ResponsePage.aspx?id=ZsJ8uMQJzECN-skuCL-ctJp3ZCXLhA5Eoq0lg0h-LxxUMVhRR1VGOVYzU0lMMVYzSzlXQlVNTDNXOS4u";
+            let params = new URLSearchParams();
+
+            if (tipo === "nuovo") {
+                params.append("34_NSerialeApparatoNuovo", serialeRilevato);
+            } else if (tipo === "rimosso") {
+                params.append("35_NSerialeApparatoRimosso", serialeRilevato);
+            }
+
+            window.location.href = baseUrl + "&" + params.toString();
+        }
+    </script>
+</body>
+</html>
